@@ -112,7 +112,7 @@ def temperature_is_abnormal(season_profile, current_temp):
         st.warning("Температура аномальная!")
 
 async def compare_sync_and_async(city, api_key):
-    st.title("Сравнение синхронного и асинхронного API-запросов")
+    st.subheader("Сравнение синхронного и асинхронного API-запросов")
 
     num_requests = st.number_input("Количество запросов", min_value=1, max_value=10, value=3)
 
@@ -126,13 +126,13 @@ async def compare_sync_and_async(city, api_key):
         await asyncio.gather(*(get_temperature_async(city, api_key) for _ in range(num_requests)))
         async_time = time.time() - start_time
 
-        st.write(f"Время выполнения синхронно для {num_requests} запросов: {sync_time:.2f} секунд")
-        st.write(f"Время выполнения асинхронно для {num_requests} запросов: {async_time:.2f} секунд")
+        st.write(f"Время выполнения {num_requests} синхронных запросов: {sync_time:.2f} секунд")
+        st.write(f"Время выполнения {num_requests} асинхронных запросов: {async_time:.2f} секунд")
 def main():
-    st.title("Анализ температуры по городам")
+    st.title("Анализ температурных данных и мониторинг текущей температуры через OpenWeatherMap API")
 
     st.sidebar.header("Загрузка данных")
-    uploaded_file = st.sidebar.file_uploader("Загрузите файл с данными (CSV)", type="csv")
+    uploaded_file = st.sidebar.file_uploader("Загрузите файл с данными (csv)", type="csv")
     if uploaded_file is None:
         if not os.path.exists("temperature_data.csv"):
             data = generate_realistic_temperature_data(list(seasonal_temperatures.keys()))
@@ -164,7 +164,7 @@ def main():
     df = city_result["df"]
     city_data = df[df["city"] == selected_city]
 
-    st.subheader(f"Анализ температур для {selected_city}")
+    st.subheader(f"График температуры для {selected_city}")
     normal_values = city_data[~city_data["is_anomaly"]]
     anomalies = city_data[city_data["is_anomaly"]]
 
@@ -207,7 +207,7 @@ def main():
     st.subheader("Сезонный профиль")
     st.write(city_result['season_profile'])
 
-    st.subheader("Мониторинг текущей температуры")
+    st.subheader("Мониторинг температуры")
     api_key = st.text_input("Введите API ключ OpenWeatherMap")
 
     if api_key:
@@ -217,7 +217,7 @@ def main():
                 st.write(f"Текущая температура в {selected_city}: {current_temp}°C")
                 temperature_is_abnormal(city_result["season_profile"], current_temp)
 
-    asyncio.run(compare_sync_and_async(selected_city, api_key))
+        asyncio.run(compare_sync_and_async(selected_city, api_key))
 
 
 def get_current_temperature(city, api_key):
